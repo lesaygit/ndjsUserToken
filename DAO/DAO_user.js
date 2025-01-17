@@ -1,40 +1,32 @@
-import handleConnection from '../dbConfig.js';
+import pool from '../dbConfig.js'
 
-const getAllUsers = () => {
+const getAllUsers = async () => {
+  const sql = 'SELECT * FROM `user`';
+  try {
+    const [rows] = await pool.query(sql); // Usa el método query con soporte Promesa
+    console.log(rows);
+    return rows;
+  } catch (err) {
+    console.error('Error al realizar la consulta:', err);
+    throw new Error('Error de query: ' + err.message);
+  }
+}
 
-  const connection = handleConnection();
-  const sql = 'SELECT * FROM `users` ';
+const userExist = async (userName) => {
 
-  return new Promise((resolv, reject) => {
-    connection.query(sql, (err, rows) => {
-      if (err) {
-        reject('error de query:' + err);
-        return;
-      }
-
-      resolv(rows);
-
-    });
-
-  });
-};
-
-const userExist = (userName, callback) => {
-
-  const cnx = handleConnection();
   const sql = `SELECT COUNT(*) AS count FROM user WHERE user_name = ?`;
   const value = [userName];
 
-  cnx.execute(sql, value, (err, rows) => {
-    if (err) {
-      return callback(err, null);
-    }
+  try {
+    const [rows] = await pool.query(sql, value); // Usa query en lugar de execute para compatibilidad con pool
+    const userCount = rows[0]?.count || 0; // Obtiene el conteo desde el resultado
+    return userCount > 0; // Devuelve true si el usuario existe, de lo contrario false
+  } catch (err) {
+    console.error('Error al verificar existencia de usuario:', err);
+    throw new Error('Error en la consulta: ' + err.message);
 
-    const userCount = rows[0]?.count || 0;
-    callback(null, userCount > 0);
-  });
-};
-
+  }
+}
 
 
 export { getAllUsers, userExist }

@@ -24,7 +24,8 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  res.end('hi Post user')
+  //res.end('hi Post user')
+  const { user_name, password_hash, email, token } = req.body;
 });
 
 export default router;

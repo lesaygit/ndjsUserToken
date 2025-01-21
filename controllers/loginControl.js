@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import {userExist} from '../DAO/DAO_user.js';
+import {existUser} from '../DAO/DAO_user.js';
 
 //vars
 const router = express.Router();
@@ -9,7 +9,7 @@ const secretKey='TDA2020';
 //rutas
 router.post('/', (req, res) => { 
     const { username, password } = req.body;
-    userExist(username,password,(err,userResult)=>{
+    existUser(username,password,(err,userResult)=>{
       if (err) {
         //console.error(err);
 		//console.error('usuario no encontrado'); //recuerda que esto sale en la consola del backend del server no en el navegador

@@ -1,11 +1,10 @@
+//DAO data acces object maneja todo el acceso a la BD, solo eso.
 import pool from '../dbConfig.js'
-//DAO data acces object maneja todo el acceso a la BD.
 
 const getUsers = async () => {
-  const sql = 'SELECT * FROM `user`';
+  const sql = 'SELECT * FROM user';
   try {
-    const [rows] = await pool.query(sql); // Usa el método query con soporte Promesa
-    //console.log(rows);
+    const [rows] = await pool.query(sql);
     return rows;
   } catch (err) {
     console.error('Error al realizar la consulta:', err);
@@ -13,36 +12,65 @@ const getUsers = async () => {
   }
 }
 
-const createUser= async(user)=>{
- const sql =`INSERT INTO user (user_name,password_hash,email) VALUES (?,?,?)`;
- const values = [user.user_name, user.password_hash, user.email];
-
- try {
-  const [result]=await pool.query(sql,values);
-  return result.insertId;
+const getUsersId = async (idUser) => {
   
- } catch (err) {
-  console.error('Error al crear usuario:', err);
-  throw new Error('Error en la consulta: ' + err.message);
- }
+  const sql = 'SELECT * FROM user WHERE user.idUser=?';
+  const value=[idUser];
+  
+  try {
+    const [rows] = await pool.query(sql,value);
+    return rows;
+  } catch (err) {
+    console.error('Error al realizar la consulta:', err);
+    throw new Error('Error de query: ' + err.message);
+   
+  }
 }
 
-const editUser=async(user)=>{
+const createUser = async (userNew) => {
 
-  const values = [ user.user_name, user.password_hash, user.email,user.idUser];
-  const sql=`UPDATE user SET user_name=?,password_hash=?, email=? WHERE user.idUser=?`;
+  const sql = `INSERT INTO user (user_name,password_hash,email) VALUES (?,?,?)`;
+  const values = [userNew.user_name, userNew.password_hash, userNew.email];
+
   try {
-    const [result]=await pool.query(sql,values);
+    const [result] = await pool.query(sql, values);
+    return result.insertId;
+
+  } catch (err) {
+    console.error('Error al crear usuario:', err);
+    throw new Error('Error en la consulta (createUser):' + err.message);
+  }
+}
+
+const editUser = async (userId, userData) => {
+ 
+  const { user_name, password_hash, email } = userData;
+  const values = [user_name, password_hash, email, userId];
+  const sql = `UPDATE user SET user_name=?,password_hash=?, email=? WHERE user.idUser=?`;
+
+  try {
+    const [result] = await pool.query(sql, values);
     return result.affectedRows;
-    
-   } catch (err) {
+
+  } catch (err) {
     console.error('Error al actualizar usuario:', err);
     throw new Error('Error en la consulta: ' + err.message);
-   }
+  }
 
 }
 
-const deletUser=async(id)=>{
+const deletUser = async (userId) => {
+  const sql = `DELETE FROM user WHERE user.idUser = ?`;
+  const value = [userId];//hacemos esto porque mysql2 pide los valores por parametros en un array.
+  try {
+    const [result] = await pool.query(sql, value);
+    //return result.affectedRows;
+    return result;//el resiltado lo manejaremos en DTO
+
+  } catch (err) {
+    console.error('Error al eliminar usuario:', err);
+    throw new Error('Error en la consulta: ' + err.message);
+  }
 
 }
 
@@ -63,7 +91,7 @@ const existUser = async (userName) => {
 }
 
 
-export { getUsers, createUser, editUser, deletUser, existUser }
+export { getUsers, createUser, editUser, deletUser, getUsersId, existUser }
 
 
 

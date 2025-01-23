@@ -1,10 +1,12 @@
 class User {
-    constructor(user_name, password_hash, email, idUser = null) {
+    constructor({idUser = null, user_name, password_hash, email, status = null, created_at = null, updated_at = null}) {
+        this.idUser = idUser;
         this.user_name = user_name;
         this.password_hash = password_hash;
         this.email = email;
-        this.idUser = idUser; 
-       
+        this.status=status;
+        this.created_at=created_at;
+        this.updated_at=updated_at;
     }
     isValid() {
         if (!this.user_name || this.user_name.trim().length < 3) {

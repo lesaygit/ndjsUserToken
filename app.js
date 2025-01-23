@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: false })); //recuerda true para obj comle
 //ruta
 app.get('/', (req, res) => { res.send('Hello main API RES Get acces to user list express from node.js 😎.') });
 app.use('/login', loginControl);
-app.use('/users', userControl);
+app.use('/user', userControl);
 
 //middleware para rutas desconocidas
 

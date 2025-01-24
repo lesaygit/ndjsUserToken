@@ -1,5 +1,5 @@
 //DTO (Data Transfer Object)
-import { getUsers, createUser, editUser, deletUser, getUsersId, existUser } from '../DAO/DAO_user.js'
+import { getUsers, createUser, editUser, deletUser, getUsersId } from '../DAO/DAO_user.js'
 
 const getAllUsersService = async () => {
     const rows = await getUsers();

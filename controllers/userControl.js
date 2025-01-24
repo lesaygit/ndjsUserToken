@@ -1,4 +1,4 @@
-import { getUsers, createUser, editUser, deletUser, existUser } from '../DAO/DAO_user.js'
+import { getUsers, createUser, editUser, deletUser } from '../DAO/DAO_user.js'
 import { getAllUsersService, createNewUserService, editUserService, getUserIdSercice, deletUserService } from '../services/userservice.js'
 import express from 'express'
 import { param, validationResult } from 'express-validator'
@@ -69,8 +69,8 @@ router.post('/new', async (req, res) => {
 
 
   try {
-    const exist = await existUser(user_name)//estender metodo tambien para email o crear otro o meor hacer un metodo generico que compruebe si el valor pasado existe en la bd
-    if (exist) { return res.status(400).json({ error: 'El nombre de usuario ya está en uso.' }) }
+    //const exist = await existUser(user_name)//estender metodo tambien para email o crear otro o meor hacer un metodo generico que compruebe si el valor pasado existe en la bd
+    //if (exist) { return res.status(400).json({ error: 'El nombre de usuario ya está en uso.' }) }
 
     const newUser = new User({ user_name, password_hash, email });
     newUser.isValid();//quitar esa responsabilida de hay, al crear un user los datos deben estar validados

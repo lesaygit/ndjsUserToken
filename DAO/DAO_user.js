@@ -1,5 +1,7 @@
 //DAO data acces object maneja todo el acceso a la BD, solo eso.
-import pool from '../dbConfig.js'
+import pool from '../dbConfig.js';
+import bcrypt from "bcrypt";
+
 
 const getUsers = async () => {
   const sql = 'SELECT * FROM user';
@@ -13,17 +15,17 @@ const getUsers = async () => {
 }
 
 const getUsersId = async (idUser) => {
-  
+
   const sql = 'SELECT * FROM user WHERE user.idUser=?';
-  const value=[idUser];
-  
+  const value = [idUser];
+
   try {
-    const [rows] = await pool.query(sql,value);
+    const [rows] = await pool.query(sql, value);
     return rows;
   } catch (err) {
     console.error('Error al realizar la consulta:', err);
     throw new Error('Error de query: ' + err.message);
-   
+
   }
 }
 
@@ -43,7 +45,7 @@ const createUser = async (userNew) => {
 }
 
 const editUser = async (userId, userData) => {
- 
+
   const { user_name, password_hash, email } = userData;
   const values = [user_name, password_hash, email, userId];
   const sql = `UPDATE user SET user_name=?,password_hash=?, email=? WHERE user.idUser=?`;
@@ -74,24 +76,39 @@ const deletUser = async (userId) => {
 
 }
 
-const existUser = async (userName) => {
-
-  const sql = `SELECT COUNT(*) AS count FROM user WHERE user_name = ?`;
-  const value = [userName];
+const checkUser = async (userName, password) => {
 
   try {
-    const [rows] = await pool.query(sql, value); // Usa query en lugar de execute para compatibilidad con pool
-    const userCount = rows[0]?.count || 0; // Obtiene el conteo desde el resultado
-    return userCount > 0; // Devuelve true si el usuario existe, de lo contrario false
-  } catch (err) {
-    console.error('Error al verificar existencia de usuario:', err);
-    throw new Error('Error en la consulta: ' + err.message);
+    const sql = `SELECT idUser, user_name, password_hash FROM user WHERE user_name = ?`;
+    const [rows] = await pool.query(sql, [userName]);
+    // Verificar si el usuario existe
+    if (rows.length === 0) {
+      return { success: false, message: 'Usuario no encontrado' };
+    }
 
+    const user = rows[0]; // El usuario encontrado
+    const hash = user.password_hash;
+    // Verificar la contraseña ingresada contra el hash almacenado
+    const isPasswordValid = await bcrypt.compare(password, hash);
+    if (!isPasswordValid) {
+      return { success: false, message: 'Contraseña incorrecta' };
+    }
+
+    // Si todo está bien, devolver datos del usuario
+    return {
+      success: true,
+      message: 'Usuario autenticado con éxito',
+      userId: user.idUser,
+      userName: user.user_name
+    };
+  } catch (err) {
+    console.error('Error en la autenticación:', err);
+    throw new Error('Error al verificar el usuario: ' + err.message);
   }
 }
 
 
-export { getUsers, createUser, editUser, deletUser, getUsersId, existUser }
+export { getUsers, createUser, editUser, deletUser, getUsersId, checkUser }
 
 
 
